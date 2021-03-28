@@ -1,16 +1,17 @@
 # syntax=docker/dockerfile:experimental
 FROM debian:buster-slim
 LABEL maintainer="phillip@dulion.com"
+ARG version
 
 ENV	LC_ALL="C.UTF-8" \
 	LANG="en_US.UTF-8" \
 	LANGUAGE="en_US.UTF-8" \
 	TZ="Etc/UTC" \
-	PHP_VERS="7.4" \
-	ZM_VERS="1.34"
+	ZM_VERS="${version}"
 
 RUN \
   --mount=type=bind,target=/var/scripts,source=scripts,ro \
+  --mount=type=bind,target=/var/download,source=download,ro \
   --mount=type=cache,target=/var/cache/apt \
   --mount=type=cache,target=/var/lib/apt \
   --mount=type=cache,target=/var/log/apt \
@@ -24,7 +25,34 @@ RUN \
     gnupg \
     php \
     php-mysql \
-&& echo deb https://zmrepo.zoneminder.com/debian/release-1.34 buster/ >> /etc/apt/sources.list \
+    autoconf \
+    automake \
+    build-essential \
+    cmake \
+    git-core \
+    libass-dev \
+    libfreetype6-dev \
+    libsdl2-dev \
+    libtool \
+    libva-dev \
+    libvdpau-dev \
+    libvorbis-dev \
+    libxcb1-dev \
+    libxcb-shm0-dev \
+    libxcb-xfixes0-dev \
+    pkg-config \
+    texinfo \
+    zlib1g-dev \
+    nasm \
+    yasm \
+    libx265-dev \
+    libnuma-dev \
+    libvpx-dev \
+    libmp3lame-dev \
+    libopus-dev \
+    libx264-dev \
+    libfdk-aac-dev \
+&& echo deb https://zmrepo.zoneminder.com/debian/release-${ZM_VERS}} buster/ >> /etc/apt/sources.list \
 && apt-key add /var/scripts/zoneminder.gpg \
 && apt-get update \
 && apt-get install -y --no-install-recommends zoneminder \
@@ -37,11 +65,13 @@ RUN \
     /var/cache/zoneminder/images \
     /var/cache/zoneminder/temp \
     /var/log/zm \
+    /var/run/zm \
     /tmp/zm \
 && chown -R www-data:www-data \
     /usr/share/zoneminder \
     /var/cache/zoneminder \
     /var/log/zm \
+    /var/run/zm \
     /tmp/zm
 
 CMD ["/usr/local/bin/zoneminder"]
