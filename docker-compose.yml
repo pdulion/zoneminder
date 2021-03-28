@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  db:
+    image: mariadb:10.5
+    environment:
+      TZ: "America/Los_Angeles"
+      MYSQL_DATABASE: "zm"
+      MYSQL_USER: "${USER_NAME}"
+      MYSQL_PASSWORD: "${USER_PASS}"
+      MYSQL_ROOT_PASSWORD: "${ROOT_PASS}"
+    volumes:
+      - db:/var/lib/mysql
+  zm:
+    build:
+      context: ./zoneminder
+      args:
+        version: '1.34'
+    image: pdulion/zoneminder:1.34
+    environment:
+      TZ: 'Europe/Moscow'
+      ZM_DB_HOST: db
+      ZM_DB_NAME: zm
+      ZM_DB_USER: "${USER_NAME}"
+      ZM_DB_PASS: "${USER_PASS}"
+    volumes:
+      - zm-tmp:/tmp/zm
+      - zm-run:/var/run/zm
+      - zm-log:/var/log/zm
+      - zm-data:/var/cache/zoneminder
+    depends_on:
+      - db
+volumes:
+  db:
+  zm-tmp:
+  zm-run:
+  zm-log:
+  zm-data:

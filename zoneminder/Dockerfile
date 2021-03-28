@@ -43,3 +43,5 @@ RUN \
     /var/cache/zoneminder \
     /var/log/zm \
     /tmp/zm
+
+CMD ["/usr/local/bin/zoneminder"]

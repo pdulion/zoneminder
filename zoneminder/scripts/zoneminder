@@ -4,8 +4,12 @@ set -e
 # Remove old pid files
 rm -rf /run/zm/*
 
-# Update database and start zonenminder
-/usr/bin/zmupdate.pl
+export MYSQL_PWD="${ZM_DB_PASS}"
+if [[ ! $(mysql --host=${ZM_DB_HOST} --user=${ZM_DB_USER} --database=zm --execute="SHOW TABLES LIKE 'Config'") ]]; then
+  mysql --host=${ZM_DB_HOST} --user=${ZM_DB_USER} --database=zm < /usr/share/zoneminder/db/zm_create.sql
+else
+  /usr/bin/zmupdate.pl
+fi
 /user/bin/zmpkg.pl start
 
 # Monitor zoneminder and shutdown safely
