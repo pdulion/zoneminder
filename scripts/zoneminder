@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+
+# Remove old pid files
+rm -rf /run/zm/*
+
+# Update database and start zonenminder
+/usr/bin/zmupdate.pl
+/user/bin/zmpkg.pl start
+
+# Monitor zoneminder and shutdown safely
+function on_term {
+    echo "Shutting down zoneminder..."
+    /user/bin/zmpkg.pl stop || true
+}
+trap 'on_term' SIGINT SIGTERM EXIT
+while pgrep -F /run/zm/zm.pid &>/dev/null
+    sleep 5
+done
