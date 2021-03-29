@@ -36,28 +36,30 @@ services:
     depends_on:
       - shmem
       - db
-    command: ["sleep", "infinity"]
-  # zm-web:
-  #   build:
-  #     context: zm-web
-  #     args:
-  #       version: "${ZM_VERSION}"
-  #   image: pdulion/zm:${ZM_VERSION}
-  #   ipc: service:shmem
-  #   environment:
-  #     TZ: 'America/Los_Angeles'
-  #     ZM_DB_HOST: db
-  #     ZM_DB_NAME: zm
-  #     ZM_DB_USER: "${USER_NAME}"
-  #     ZM_DB_PASS: "${USER_PASS}"
-  #   volumes:
-  #     - zm-tmp:/tmp/zm
-  #     - zm-run:/var/run/zm
-  #     - zm-log:/var/log/zm
-  #     - zm-data:/var/cache/zoneminder
-  #   depends_on:
-  #     - shmem
-  #     - db
+  zm-web:
+    build:
+      context: zm-web
+      args:
+        version: "${ZM_VERSION}"
+    image: pdulion/zm:${ZM_VERSION}
+    ipc: service:shmem
+    ports:
+      - "8080:80"
+    environment:
+      TZ: 'America/Los_Angeles'
+      ZM_DB_HOST: db
+      ZM_DB_NAME: zm
+      ZM_DB_USER: "${USER_NAME}"
+      ZM_DB_PASS: "${USER_PASS}"
+    volumes:
+      - zm-tmp:/tmp/zm
+      - zm-run:/var/run/zm
+      - zm-log:/var/log/zm
+      - zm-data:/var/cache/zoneminder
+    depends_on:
+      - shmem
+      - db
+      - zm
 volumes:
   db:
   zm-tmp:

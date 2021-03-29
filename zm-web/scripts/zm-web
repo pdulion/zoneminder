@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+DIR=$(cd $(dirname ${BASH_SOURCE[0]}) &> /dev/null && pwd)
+source $DIR/zm-conf
+
+sed -i "s|^;date.timezone =.*|date.timezone = ${TZ}|" /etc/php/${PHP_VERSION}/apache2/php.ini
+exec apache2ctl -DFOREGROUND

@@ -1,13 +1,10 @@
 #!/bin/bash
 set -e
+DIR=$(cd $(dirname ${BASH_SOURCE[0]}) &> /dev/null && pwd)
+source $DIR/zm-conf
 
-echo "Setting the timezone: $TZ"
-if [[ $(cat /etc/timezone) != $TZ ]]
-then
-	echo "$TZ" > /etc/timezone
-	ln -fs /usr/share/zoneinfo/$TZ /etc/localtime
-	DEBIAN_FRONTEND=noninteractive dpkg-reconfigure tzdata
-fi
+echo "Starting Zoneminder..."
+/usr/bin/zmpkg.pl start
 
 # Initialize or update database once service is available
 export MYSQL_PWD="$ZM_DB_PASS"
@@ -16,24 +13,11 @@ do
   echo "Waiting for database..."
   sleep 5;
 done
-if [[ ! $MYSQL_TABLES ]]
-then
+if [[ ! $MYSQL_TABLES ]] ; then
   mysql --host=$ZM_DB_HOST --user=$ZM_DB_USER --database=zm < /usr/share/zoneminder/db/zm_create.sql
 else
   /usr/bin/zmupdate.pl
 fi
-
-# Configure zoneminder from ZM_* environment variables and start
-re='^ZM_'
-while IFS='=' read -r key value ; do
-  if [[ $key =~ $re ]]; then
-    sed  -i "s/$key=.*/$key=$value/" /etc/zm/zm.conf
-  fi
-done < <(env)
-rm -rf /run/zm/*
-
-echo "Starting Zoneminder..."
-/usr/bin/zmpkg.pl start
 
 # Monitor zoneminder background process and shutdown safely
 function on_term {
@@ -41,7 +25,6 @@ function on_term {
     /usr/bin/zmpkg.pl stop || true
 }
 trap 'on_term' SIGINT SIGTERM EXIT
-while pgrep -F /run/zm/zm.pid &>/dev/null
-do
+while pgrep -F /run/zm/zm.pid &>/dev/null ; do
     sleep 5
 done

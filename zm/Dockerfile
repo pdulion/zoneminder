@@ -8,11 +8,11 @@ ENV LC_ALL="C.UTF-8" \
    LANGUAGE="en_US.UTF-8" \
    TZ="Etc/UTC" \
    ZM_VERSION="${version}" \
-   PHP_VERSION="7.4"
+   PHP_VERSION="7.3"
 
 RUN \
-   --mount=type=bind,target=/var/scripts,source=scripts,ro \
    --mount=type=bind,target=/var/ffmpeg,source=ffmpeg,rw \
+   --mount=type=bind,target=/var/scripts,source=scripts,ro \
    --mount=type=cache,target=/var/cache/apt \
    --mount=type=cache,target=/var/lib/apt \
    --mount=type=cache,target=/var/log/apt \
@@ -27,7 +27,8 @@ RUN \
 && apt-key add /var/scripts/zoneminder.gpg \
 && dpkg -i /var/ffmpeg/deb-multimedia-keyring.deb \
 && apt-get update \
-&& apt-get install -y --no-install-recommends zoneminder \
+&& apt-get install -y --no-install-recommends \
+   zoneminder \
    autoconf \
    automake \
    build-essential \
@@ -78,7 +79,7 @@ RUN \
 && make install -j8 \
 && apt-get clean \
 && adduser www-data video \
-&& install /var/scripts/zoneminder /usr/local/bin/zoneminder \
+&& install /var/scripts/* /usr/local/bin/ \
 && mkdir -p \
    /var/cache/zoneminder/cache \
    /var/cache/zoneminder/events \
@@ -94,4 +95,4 @@ RUN \
    /var/run/zm \
    /tmp/zm
 
-CMD ["/usr/local/bin/zoneminder"]
+CMD ["/usr/local/bin/zm"]
