@@ -1,10 +1,9 @@
 #!/bin/bash
 set -e
+
+sleep 10s
 DIR=$(cd $(dirname ${BASH_SOURCE[0]}) &> /dev/null && pwd)
 source $DIR/zm-conf
-
-echo "Starting Zoneminder..."
-/usr/bin/zmpkg.pl start
 
 # Initialize or update database once service is available
 export MYSQL_PWD="$ZM_DB_PASS"
@@ -14,10 +13,14 @@ do
   sleep 5;
 done
 if [[ ! $MYSQL_TABLES ]] ; then
+  echo "Creating Database..."
   mysql --host=$ZM_DB_HOST --user=$ZM_DB_USER --database=zm < /usr/share/zoneminder/db/zm_create.sql
 else
   /usr/bin/zmupdate.pl
 fi
+
+echo "Starting Zoneminder..."
+/usr/bin/zmpkg.pl start
 
 # Monitor zoneminder background process and shutdown safely
 function on_term {

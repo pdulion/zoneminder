@@ -41,7 +41,7 @@ services:
       context: zm-web
       args:
         version: "${ZM_VERSION}"
-    image: pdulion/zm:${ZM_VERSION}
+    image: pdulion/zm-web:${ZM_VERSION}
     ipc: service:shmem
     ports:
       - "8080:80"
